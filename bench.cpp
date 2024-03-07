@@ -7,6 +7,11 @@
 
 constexpr size_t CHUNK_SIZE = 1 << 20; // 1MB
 
+// 16KiB is less realistic for deep learning, but has the advantage of fitting
+// into L1 cache, so it's a more realistic choice for algorithms that process
+// only a tiny chunk of data at a time (e.g. counting lines).
+// constexpr size_t CHUNK_SIZE = 1 << 14; // 16KiB
+
 // Process a chunk of data by XORing all longs together
 long process_chunk(char* chunk, size_t size) {
     long result = 0;
@@ -27,6 +32,11 @@ void readMethod(const char* filePath) {
         perror("Error opening file");
         exit(EXIT_FAILURE);
     }
+
+    // this doesn't help with 1MiB blocks, but helps a lot
+    // with 16KiB blocks (normally 16KiB blocks are 50% slower
+    // than 1MiB blocks, but this equalizes the runtimes)
+    posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL);
 
     char* buffer = new char[CHUNK_SIZE];
     ssize_t bytesRead;
