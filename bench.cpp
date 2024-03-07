@@ -1,3 +1,7 @@
+// this was mostly written by GPT4
+// (but I changd some stuff around/added Linux-isms)
+// works fine on Linux with -Os
+
 #include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
